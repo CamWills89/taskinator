@@ -32,8 +32,6 @@ var completeEditTask = function (taskName, taskType, taskId) {
 };
 
 var createTaskEl = function (taskDataObj) {
-    console.log(taskDataObj);
-    console.log(taskDataObj.status);
     //create list item
     var listItemEl = document.createElement("li");
     listItemEl.className = "task-item";
@@ -283,6 +281,53 @@ var saveTasks = function() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
+var loadTasks = function() {
+    // Gets task items from localStorage
+    // Converts tasks from the stringified format back into an array of objects
+    // Iterates through tasks array and creates task elements on the page from it
+    tasks = localStorage.getItem('tasks');
+    
+    // if the tasks return as null, do thi
+    // if (!tasks) {
+    //     tasks = [];
+    //     return false;
+    // }
+    
+    tasks = JSON.parse(tasks);
+    console.log(tasks);
+    
+    for ( var i = 0; i <tasks.length; i++) {
+        //sync task IDs
+        tasks[i].id = taskIdCounter;
+
+        //recreating <li> listItemEl
+        listItemEl = document.createElement("li");
+        listItemEl.className = "task-item";
+        listItemEl.setAttribute("data-task-id", tasks[i].id);
+        listItemEl.setAttribute("draggable", true);
+        
+        //recreating <div> taskInfoEl
+        taskInfoEl = document.createElement("div");
+        taskInfoEl.className = "task-info"
+        taskInfoEl.innerHTML = "<h3 class='task-name'>" + tasks[i].name + "</h3><span class='task-type'>" + tasks[i].type + "</span>";
+        
+        //appending list and div
+        listItemEl.appendChild(taskInfoEl);
+        
+        //recreating actions for tasks
+        taskActionsEl = createTaskActions(tasks[i].id);
+        listItemEl.appendChild(taskActionsEl);
+
+        if (tasks[i].status === 'to do') {
+            listItemEl.querySelector("select[name='status-change']").selectedIndex = 0;
+            tasksToDoEl.appendChild(listItemEl);
+        }
+
+        taskIdCounter++
+        console.log(listItemEl);
+    }  
+};
+
 pageContentEl.addEventListener("click", taskButtonHandler);
 formEl.addEventListener("submit", taskFormHandler);
 pageContentEl.addEventListener("change", taskStatusChangeHandler);
@@ -290,3 +335,5 @@ pageContentEl.addEventListener("dragstart", dragTaskHandler);
 pageContentEl.addEventListener("dragover", dropZoneDragHandler);
 pageContentEl.addEventListener("drop", dropTaskHandler);
 pageContentEl.addEventListener("dragleave", dragLeaveHandler);
+
+loadTasks();
